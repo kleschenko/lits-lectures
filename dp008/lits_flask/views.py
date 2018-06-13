@@ -2,18 +2,15 @@ from flask import flash, render_template, redirect
 
 from app import app
 from forms import LoginForm
+from models import User
 
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-    valid_credentials = {
-        'username': 'user',
-        'password': 'password',
-    }
     login_form = LoginForm()
     if login_form.validate_on_submit():
-        if (login_form.username.data == valid_credentials['username']
-                and login_form.password.data == valid_credentials['password']):
+        user = User.query.filter_by(username=login_form.username.data).first()
+        if user and user.check_password(login_form.password.data):
             return redirect('/')
         else:
             flash('Username or password are not valid')
@@ -23,6 +20,11 @@ def login():
 @app.route("/")
 def hello():
     return "<h1>Hello World!</h1>"
+
+
+@app.route("/ajax")
+def ajax():
+    return {'result': 'OK'}
 
 
 @app.route("/index2")
